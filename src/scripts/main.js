@@ -5,7 +5,8 @@ const treeNodes = document.querySelectorAll('ul.tree li');
 // this avoids relying on :has()
 // we filtered every else nodes li, but kept ones with children
 const nodesWithChildren = Array.from(treeNodes).filter((li) =>
-  li.querySelector(':scope > ul'),);
+  li.querySelector(':scope > ul'),
+); // eslint-disable-line function-paren-newline
 
 /**
  * Toggle visibility of {this} element
