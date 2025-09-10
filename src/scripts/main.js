@@ -4,9 +4,9 @@
 const treeNodes = document.querySelectorAll('ul.tree li');
 // this avoids relying on :has()
 // we filtered every else nodes li, but kept ones with children
-const nodesWithChildren = Array.from(treeNodes).filter((li) =>
-  li.querySelector(':scope > ul'),
-); // eslint-disable-line function-paren-newline
+const nodesWithChildren = Array.from(treeNodes).filter( // eslint-disable-line
+  (li) => Array.from(li.children).some((el) => el.tagName === 'UL'),
+);
 
 /**
  * Toggle visibility of {this} element
@@ -26,14 +26,11 @@ function toggleVisibility() {
 
 /**
  * Wrap with headline first element(s) before ul in children set
+ * and returns wrapper element or null
+ *
+ * @return {HTMLSpanElement} | null
  */
 function wrapHeadline() {
-  /**
-   * Children node list
-   * @type {NodeList[]} children
-   */
-  const children = Array.from(this.childNodes);
-
   /**
    * Child UL
    * @type {Element} childUl
@@ -45,10 +42,19 @@ function wrapHeadline() {
   }
 
   /**
-   * Children before UL
-   * @type {Node[]}
+   * Nodes before UL
+   * @type {*[]} headline
    */
-  const headline = children.slice(0, children.indexOf(childUl));
+  const headline = [];
+
+  for (const node of this.childNodes) {
+    if (node === childUl) {
+      // Stop on ul
+      break;
+    }
+    // Add node to headline
+    headline.push(node);
+  }
 
   /**
    * Span wrapper
@@ -63,6 +69,8 @@ function wrapHeadline() {
 
   // insert span wrapper before child UL element
   this.insertBefore(newSpan, childUl);
+
+  return newSpan;
 }
 
 /**
@@ -72,10 +80,10 @@ function wrapHeadline() {
  */
 nodesWithChildren.forEach((element) => {
   // wrap with span
-  wrapHeadline.call(element);
+  const wrapper = wrapHeadline.call(element);
 
   // add click listener
-  element.querySelector('.headline').addEventListener('click', function (e) {
+  wrapper.addEventListener('click', function (e) {
     /**
      * WE STOP execution of top-level node's event handlers
      */
